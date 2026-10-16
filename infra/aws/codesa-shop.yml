@@ -1,0 +1,197 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Codesa Shop en AWS: una instancia EC2 de capa gratuita que corre el mismo docker compose
+  (PostgreSQL, backend y frontend) con imagenes en ECR, y CloudFront delante para HTTPS.
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t3.micro
+    Description: Tipo de instancia. t3.micro entra en la capa gratuita.
+  LatestAmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
+  CloudFrontPrefixListId:
+    Type: String
+    Description: Lista administrada com.amazonaws.global.cloudfront.origin-facing de la region (la resuelve deploy.sh).
+  DbPassword:
+    Type: String
+    NoEcho: true
+    MinLength: 12
+    Description: Clave de PostgreSQL dentro de la instancia (no se expone a internet).
+
+Resources:
+  # ____ Imagenes ____
+  BackendRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: codesa-shop/backend
+      EmptyOnDelete: true
+      LifecyclePolicy:
+        LifecyclePolicyText: '{"rules":[{"rulePriority":1,"description":"Solo las 5 ultimas","selection":{"tagStatus":"any","countType":"imageCountMoreThan","countNumber":5},"action":{"type":"expire"}}]}'
+
+  FrontendRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: codesa-shop/frontend
+      EmptyOnDelete: true
+      LifecyclePolicy:
+        LifecyclePolicyText: '{"rules":[{"rulePriority":1,"description":"Solo las 5 ultimas","selection":{"tagStatus":"any","countType":"imageCountMoreThan","countNumber":5},"action":{"type":"expire"}}]}'
+
+  # ____ Permisos de la instancia: leer ECR y recibir comandos por SSM (sin SSH) ____
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref InstanceRole
+
+  # ____ Red: solo el puerto 80 y solo desde CloudFront ____
+  WebSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Acceso HTTP desde CloudFront
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourcePrefixListId: !Ref CloudFrontPrefixListId
+
+  # ____ Instancia ____
+  ShopInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref LatestAmiId
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref InstanceProfile
+      SecurityGroupIds:
+        - !GetAtt WebSecurityGroup.GroupId
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: 20
+            VolumeType: gp3
+      Tags:
+        - Key: Name
+          Value: codesa-shop
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -euxo pipefail
+
+          # Swap: t3.micro tiene 1 GB y la JVM mas PostgreSQL lo necesitan
+          fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
+          echo '/swapfile swap swap defaults 0 0' >> /etc/fstab
+
+          dnf install -y docker
+          systemctl enable --now docker
+          mkdir -p /usr/libexec/docker/cli-plugins
+          curl -sSL https://github.com/docker/compose/releases/download/v2.29.7/docker-compose-linux-x86_64 \
+            -o /usr/libexec/docker/cli-plugins/docker-compose
+          chmod +x /usr/libexec/docker/cli-plugins/docker-compose
+
+          mkdir -p /opt/codesa
+          cat > /opt/codesa/docker-compose.yml <<'EOF'
+          services:
+            db:
+              image: postgres:16-alpine
+              environment:
+                POSTGRES_DB: codesa_shop
+                POSTGRES_USER: codesa
+                POSTGRES_PASSWORD: ${DbPassword}
+              volumes:
+                - pgdata:/var/lib/postgresql/data
+              healthcheck:
+                test: ["CMD-SHELL", "pg_isready -U codesa -d codesa_shop"]
+                interval: 5s
+                timeout: 3s
+                retries: 10
+              restart: unless-stopped
+            backend:
+              image: ${BackendRepository.RepositoryUri}:${!IMAGE_TAG}
+              environment:
+                DB_URL: jdbc:postgresql://db:5432/codesa_shop
+                DB_USER: codesa
+                DB_PASSWORD: ${DbPassword}
+                JAVA_TOOL_OPTIONS: -Xmx384m
+              depends_on:
+                db:
+                  condition: service_healthy
+              restart: unless-stopped
+            frontend:
+              image: ${FrontendRepository.RepositoryUri}:${!IMAGE_TAG}
+              ports:
+                - "80:80"
+              depends_on:
+                - backend
+              restart: unless-stopped
+          volumes:
+            pgdata:
+          EOF
+
+          cat > /opt/codesa/deploy.sh <<'EOF'
+          #!/bin/bash
+          set -euo pipefail
+          cd /opt/codesa
+          export IMAGE_TAG="$1"
+          aws ecr get-login-password --region ${AWS::Region} \
+            | docker login --username AWS --password-stdin ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com
+          docker compose pull
+          docker compose up -d --remove-orphans
+          docker image prune -f
+          EOF
+          chmod +x /opt/codesa/deploy.sh
+
+  # ____ HTTPS con el dominio de CloudFront ____
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: Codesa Shop
+        HttpVersion: http2and3
+        PriceClass: PriceClass_100
+        Origins:
+          - Id: shop-instance
+            DomainName: !GetAtt ShopInstance.PublicDnsName
+            CustomOriginConfig:
+              OriginProtocolPolicy: http-only
+              HTTPPort: 80
+        DefaultCacheBehavior:
+          TargetOriginId: shop-instance
+          ViewerProtocolPolicy: redirect-to-https
+          Compress: true
+          # CachingOptimized: los archivos con hash se cachean; index.html llega con no-cache
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+        CacheBehaviors:
+          - PathPattern: /api/*
+            TargetOriginId: shop-instance
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD, OPTIONS, PUT, PATCH, POST, DELETE]
+            # CachingDisabled + AllViewerExceptHostHeader: la API nunca se cachea y recibe query y cuerpo
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+
+Outputs:
+  ShopUrl:
+    Description: URL publica de la tienda
+    Value: !Sub https://${Distribution.DomainName}
+  InstanceId:
+    Value: !Ref ShopInstance
+  BackendRepositoryUri:
+    Value: !GetAtt BackendRepository.RepositoryUri
+  FrontendRepositoryUri:
+    Value: !GetAtt FrontendRepository.RepositoryUri
