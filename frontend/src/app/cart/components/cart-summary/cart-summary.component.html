@@ -1,0 +1,73 @@
+@let summary = cart.summary();
+<section class="summary" [attr.aria-labelledby]="idPrefix() + '-summary-title'">
+  <h2
+    class="summary__title"
+    [class.visually-hidden]="!showTitle()"
+    [id]="idPrefix() + '-summary-title'"
+  >
+    Resumen del pedido
+  </h2>
+
+  @if (showShippingProgress()) {
+    <app-free-shipping-progress />
+  }
+
+  @if (showCoupon()) {
+    <app-coupon-form [idPrefix]="idPrefix()" />
+  }
+
+  <dl class="summary__rows">
+    <div class="summary__row">
+      <dt>
+        Subtotal
+        <span class="summary__count">
+          ({{ summary.itemCount }} {{ summary.itemCount === 1 ? 'artículo' : 'artículos' }})
+        </span>
+      </dt>
+      <dd class="app-money">{{ summary.subtotal | cop }}</dd>
+    </div>
+
+    @if (summary.coupon) {
+      <div class="summary__row summary__row--discount">
+        <dt>
+          Descuento <span class="summary__tag">{{ summary.coupon.code }}</span>
+        </dt>
+        <dd class="app-money">
+          @if (summary.discount > 0) {
+            − {{ summary.discount | cop }}
+          } @else {
+            {{ 0 | cop }}
+          }
+        </dd>
+      </div>
+    }
+
+    <div class="summary__row">
+      <dt>Envío</dt>
+      <dd class="app-money">
+        @if (summary.shipping === 0 && summary.subtotal > 0) {
+          <span class="summary__free">Gratis</span>
+        } @else {
+          {{ summary.shipping | cop }}
+        }
+      </dd>
+    </div>
+
+    <div class="summary__row summary__row--total">
+      <dt>Total</dt>
+      <dd class="app-money">{{ summary.total | cop }}</dd>
+    </div>
+  </dl>
+
+  @if (summary.confirmedByServer) {
+    <p class="summary__note">
+      <i class="pi pi-verified" aria-hidden="true"></i> Valores confirmados por la tienda.
+    </p>
+  } @else if (showNote()) {
+    <p class="summary__note">Precios con IVA incluido. El total final se confirma al pagar.</p>
+  }
+
+  <div class="summary__actions">
+    <ng-content />
+  </div>
+</section>

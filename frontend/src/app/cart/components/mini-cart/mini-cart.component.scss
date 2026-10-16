@@ -1,0 +1,83 @@
+.mini-cart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-3);
+  width: 20rem;
+}
+
+.mini-cart__title {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-2);
+  font-weight: 600;
+
+  .pi {
+    color: var(--app-success);
+  }
+}
+
+.mini-cart__lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mini-cart__line {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  grid-template-rows: auto auto;
+  column-gap: var(--app-space-3);
+  align-items: center;
+}
+
+.mini-cart__image {
+  grid-row: span 2;
+  width: 48px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: var(--p-surface-100);
+}
+
+.mini-cart__name {
+  overflow: hidden;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini-cart__price {
+  font-size: 0.8125rem;
+  color: var(--app-text-muted);
+}
+
+.mini-cart__more {
+  font-size: 0.8125rem;
+  color: var(--app-text-muted);
+}
+
+.mini-cart__subtotal {
+  display: flex;
+  justify-content: space-between;
+  padding-top: var(--app-space-3);
+  border-top: 1px solid var(--app-border);
+}
+
+.mini-cart__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--app-space-2);
+}
+
+.mini-cart__link {
+  justify-content: center;
+  text-decoration: none;
+}
+
+:host ::ng-deep .mini-cart__open {
+  width: 100%;
+}

@@ -1,0 +1,69 @@
+.coupon-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-2);
+}
+
+.coupon-form__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.coupon-form__row {
+  display: flex;
+  gap: var(--app-space-2);
+}
+
+.coupon-form__input {
+  flex: 1;
+  min-width: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  &::placeholder {
+    text-transform: none;
+    letter-spacing: normal;
+  }
+}
+
+.coupon-applied {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-3);
+  padding: var(--app-space-3);
+  border: 1px dashed var(--app-success);
+  border-radius: var(--app-radius-sm);
+  background: var(--app-success-soft);
+
+  > .pi {
+    font-size: 1.25rem;
+    color: var(--app-success);
+  }
+
+  &--paused {
+    border-color: var(--app-warn);
+    background: #fffbeb;
+
+    > .pi {
+      color: var(--app-warn);
+    }
+  }
+}
+
+.coupon-applied__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 0.875rem;
+
+  strong {
+    letter-spacing: 0.04em;
+  }
+}
+
+.coupon-applied__hint {
+  margin-top: 2px;
+  color: var(--app-warn);
+  font-weight: 500;
+}

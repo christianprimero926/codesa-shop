@@ -1,0 +1,74 @@
+@let status = cart.summary().coupon;
+@let coupon = cart.coupon();
+@if (status && coupon) {
+  <div class="coupon-applied" [class.coupon-applied--paused]="!status.active">
+    <i
+      class="pi"
+      [class.pi-ticket]="status.active"
+      [class.pi-exclamation-circle]="!status.active"
+      aria-hidden="true"
+    ></i>
+    <div class="coupon-applied__text">
+      <strong>{{ coupon.code }}</strong>
+      <span>
+        {{ coupon.percent }} % de descuento
+        @if (coupon.maxDiscount !== null) {
+          · tope {{ coupon.maxDiscount | cop }}
+        }
+      </span>
+      @if (!status.active) {
+        <span class="coupon-applied__hint" role="status">
+          Aplica desde {{ status.minSubtotal | cop }}. Te faltan {{ status.missing | cop }}.
+        </span>
+      }
+    </div>
+    <p-button
+      icon="pi pi-times"
+      [text]="true"
+      [rounded]="true"
+      severity="secondary"
+      size="small"
+      [ariaLabel]="'Quitar cupón ' + coupon.code"
+      (onClick)="actions.removeCoupon()"
+    />
+  </div>
+} @else {
+  <form class="coupon-form" (submit)="apply($event)" novalidate>
+    <label class="coupon-form__label" [for]="idPrefix() + '-coupon'">¿Tienes un cupón?</label>
+    <div class="coupon-form__row">
+      <input
+        pInputText
+        [id]="idPrefix() + '-coupon'"
+        [formControl]="codeControl"
+        placeholder="Ej: CODESA10"
+        autocomplete="off"
+        autocapitalize="characters"
+        spellcheck="false"
+        class="coupon-form__input"
+        [invalid]="!!error()"
+        [attr.aria-invalid]="!!error()"
+        [attr.aria-describedby]="error() ? idPrefix() + '-coupon-error' : null"
+        (input)="clearError()"
+      />
+      <p-button
+        type="submit"
+        label="Aplicar"
+        severity="secondary"
+        [outlined]="true"
+        [loading]="loading()"
+        [disabled]="loading()"
+      />
+    </div>
+    @if (error(); as message) {
+      <p-message
+        [id]="idPrefix() + '-coupon-error'"
+        severity="error"
+        size="small"
+        variant="simple"
+        icon="pi pi-times-circle"
+      >
+        {{ message }}
+      </p-message>
+    }
+  </form>
+}

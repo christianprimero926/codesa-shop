@@ -1,0 +1,72 @@
+<p-drawer
+  [visible]="drawer.visible()"
+  (visibleChange)="onVisibleChange($event)"
+  (onHide)="drawer.restoreFocus()"
+  position="right"
+  [blockScroll]="true"
+  ariaCloseLabel="Cerrar carrito"
+  styleClass="cart-drawer"
+>
+  <ng-template #header>
+    <div class="cart-drawer__header">
+      <h2 class="cart-drawer__title">
+        Tu carrito
+        @if (!cart.isEmpty()) {
+          <span class="cart-drawer__count">{{ cart.itemCount() }}</span>
+        }
+      </h2>
+      @if (!cart.isEmpty()) {
+        <p-button
+          label="Vaciar"
+          icon="pi pi-trash"
+          [text]="true"
+          severity="secondary"
+          size="small"
+          (onClick)="actions.confirmClear()"
+        />
+      }
+    </div>
+  </ng-template>
+
+  @if (cart.isEmpty()) {
+    <app-cart-empty [compact]="true" (navigate)="drawer.close()" />
+  } @else {
+    <app-free-shipping-progress />
+    <ul class="cart-drawer__lines" aria-label="Productos en el carrito">
+      @for (line of cart.lineViews(); track line.productId) {
+        <li>
+          <app-cart-line [line]="line" [compact]="true" />
+        </li>
+      }
+    </ul>
+    <div class="cart-drawer__coupon">
+      <app-coupon-form idPrefix="drawer" />
+    </div>
+  }
+
+  <ng-template #footer>
+    @if (!cart.isEmpty()) {
+      <app-cart-summary
+        idPrefix="drawer"
+        [showTitle]="false"
+        [showCoupon]="false"
+        [showShippingProgress]="false"
+        [showNote]="false"
+      >
+        <a pButton routerLink="/checkout" class="cart-drawer__primary" (click)="drawer.close()"
+          ><i class="pi pi-lock" pButtonIcon aria-hidden="true"></i
+          ><span pButtonLabel>Ir a pagar</span></a
+        >
+        <a
+          pButton
+          routerLink="/carrito"
+          [outlined]="true"
+          severity="secondary"
+          class="cart-drawer__secondary"
+          (click)="drawer.close()"
+          ><span pButtonLabel>Ver carrito completo</span></a
+        >
+      </app-cart-summary>
+    }
+  </ng-template>
+</p-drawer>

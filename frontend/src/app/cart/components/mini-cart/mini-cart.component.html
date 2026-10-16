@@ -1,0 +1,48 @@
+<div class="mini-cart">
+  <p class="mini-cart__title">
+    <i class="pi pi-check-circle" aria-hidden="true"></i>
+    Tu carrito · {{ cart.itemCount() }} {{ cart.itemCount() === 1 ? 'artículo' : 'artículos' }}
+  </p>
+
+  <ul class="mini-cart__lines">
+    @for (line of cart.previewLines(); track line.productId) {
+      <li class="mini-cart__line">
+        <img [src]="line.image" alt="" width="48" height="36" class="mini-cart__image" />
+        <span class="mini-cart__name">{{ line.name }}</span>
+        <span class="mini-cart__price app-money">
+          {{ line.quantity }} × {{ line.unitPrice | cop }}
+        </span>
+      </li>
+    }
+  </ul>
+
+  @if (cart.hiddenLineCount() > 0) {
+    <p class="mini-cart__more">
+      y {{ cart.hiddenLineCount() }}
+      {{ cart.hiddenLineCount() === 1 ? 'producto más' : 'productos más' }}
+    </p>
+  }
+
+  <div class="mini-cart__subtotal">
+    <span>Subtotal</span>
+    <strong class="app-money">{{ cart.summary().subtotal | cop }}</strong>
+  </div>
+
+  <div class="mini-cart__actions">
+    <a
+      pButton
+      routerLink="/carrito"
+      size="small"
+      [outlined]="true"
+      class="mini-cart__link"
+      (click)="navigate.emit()"
+      ><span pButtonLabel>Ver todo</span></a
+    >
+    <p-button
+      label="Abrir carrito"
+      size="small"
+      styleClass="mini-cart__open"
+      (onClick)="openDrawer.emit()"
+    />
+  </div>
+</div>

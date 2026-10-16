@@ -1,0 +1,49 @@
+.cart-drawer__header {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-2);
+  padding-right: var(--app-space-2);
+}
+
+.cart-drawer__title {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-2);
+  font-size: 1.25rem;
+}
+
+.cart-drawer__count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.6rem;
+  height: 1.6rem;
+  padding-inline: 6px;
+  border-radius: 999px;
+  background: var(--app-brand-soft);
+  color: var(--app-brand);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.cart-drawer__lines {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li + li {
+    border-top: 1px solid var(--app-border);
+  }
+}
+
+.cart-drawer__primary,
+.cart-drawer__secondary {
+  width: 100%;
+  text-decoration: none;
+}
+
+.cart-drawer__coupon {
+  padding-block: var(--app-space-4) var(--app-space-2);
+  border-top: 1px solid var(--app-border);
+}

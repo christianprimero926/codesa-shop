@@ -1,0 +1,70 @@
+@let item = line();
+<a
+  class="cart-line__media"
+  [routerLink]="['/producto', item.productId]"
+  tabindex="-1"
+  aria-hidden="true"
+>
+  <img [src]="item.image" alt="" width="96" height="72" loading="lazy" class="cart-line__image" />
+</a>
+
+<div class="cart-line__info">
+  <span class="cart-line__brand">{{ item.brand }}</span>
+  <a class="cart-line__name" [routerLink]="['/producto', item.productId]">{{ item.name }}</a>
+  <span class="cart-line__unit app-money">{{ item.unitPrice | cop }} c/u</span>
+  @if (item.stock <= lowStock) {
+    <span class="cart-line__stock">
+      <i class="pi pi-info-circle" aria-hidden="true"></i>
+      {{ item.stock === 1 ? 'Queda 1 unidad' : 'Quedan ' + item.stock + ' unidades' }}
+    </span>
+  } @else if (item.quantity === item.maxQuantity) {
+    <span class="cart-line__stock">
+      <i class="pi pi-info-circle" aria-hidden="true"></i>
+      Máximo {{ item.maxQuantity }} por producto
+    </span>
+  }
+</div>
+
+<div class="cart-line__quantity">
+  <label class="visually-hidden" [for]="'qty-' + item.productId">Cantidad de {{ item.name }}</label>
+  <p-inputnumber
+    [inputId]="'qty-' + item.productId"
+    [ngModel]="item.quantity"
+    (ngModelChange)="actions.changeQuantity(item, $event)"
+    [showButtons]="true"
+    buttonLayout="horizontal"
+    [min]="1"
+    [max]="item.maxQuantity"
+    [allowEmpty]="false"
+    incrementButtonIcon="pi pi-plus"
+    decrementButtonIcon="pi pi-minus"
+    styleClass="cart-line__stepper"
+    inputStyleClass="cart-line__stepper-input"
+    size="small"
+  />
+</div>
+
+<strong class="cart-line__total app-money"
+  ><span class="visually-hidden">Subtotal de la línea: </span>{{ item.lineTotal | cop }}</strong
+>
+
+<p-button
+  icon="pi pi-trash"
+  [text]="true"
+  [rounded]="true"
+  severity="secondary"
+  class="cart-line__remove"
+  [ariaLabel]="'Quitar ' + item.name + ' del carrito'"
+  (onClick)="actions.remove(item)"
+/>
+
+@if (item.alert) {
+  <p-message
+    severity="warn"
+    size="small"
+    class="cart-line__alert"
+    icon="pi pi-exclamation-triangle"
+  >
+    {{ item.alert }}
+  </p-message>
+}
