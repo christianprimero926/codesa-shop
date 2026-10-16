@@ -1,0 +1,220 @@
+// Identidad de Codesa Shop: tokens propios para lo que PrimeNG no define.
+:root {
+  --app-font: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --app-bg: #f5f6fa;
+  --app-surface: #ffffff;
+  --app-border: #e2e8f0;
+  --app-text: #0f172a;
+  --app-text-muted: #475569;
+  --app-text-soft: #556072;
+  --app-brand: #3730a3;
+  --app-brand-soft: #eef2ff;
+  --app-success: #15803d;
+  --app-success-soft: #f0fdf4;
+  --app-warn: #b45309;
+  --app-danger: #b91c1c;
+  --app-star: #f59e0b;
+
+  --app-space-1: 0.25rem;
+  --app-space-2: 0.5rem;
+  --app-space-3: 0.75rem;
+  --app-space-4: 1rem;
+  --app-space-5: 1.5rem;
+  --app-space-6: 2rem;
+  --app-space-7: 3rem;
+
+  --app-radius: 14px;
+  --app-radius-sm: 10px;
+  --app-shadow: 0 1px 2px rgb(15 23 42 / 0.05), 0 4px 16px rgb(15 23 42 / 0.06);
+  --app-shadow-hover: 0 2px 4px rgb(15 23 42 / 0.06), 0 12px 32px rgb(15 23 42 / 0.1);
+
+  --app-container: 1240px;
+  --app-header-height: 64px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--app-header-height) + var(--app-space-4));
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--app-font);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--app-text);
+  background: var(--app-bg);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 1.25rem;
+  line-height: 1.3;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  font-size: 1rem;
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+a {
+  color: var(--app-brand);
+}
+
+a.p-button {
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+:focus-visible {
+  outline: 3px solid var(--p-primary-300);
+  outline-offset: 2px;
+}
+
+.app-container {
+  width: 100%;
+  max-width: var(--app-container);
+  margin-inline: auto;
+  padding-inline: var(--app-space-4);
+
+  @media (min-width: 768px) {
+    padding-inline: var(--app-space-5);
+  }
+}
+
+.app-page {
+  padding-block: var(--app-space-5) var(--app-space-7);
+
+  @media (min-width: 768px) {
+    padding-block: var(--app-space-6) var(--app-space-7);
+  }
+}
+
+.app-card {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+}
+
+.app-money {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.app-muted {
+  color: var(--app-text-muted);
+}
+
+.app-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--app-text-soft);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Ajustes globales sobre PrimeNG para mantener la misma identidad en toda la tienda.
+.p-button {
+  font-weight: 600;
+}
+
+.p-button:not(.p-button-icon-only) {
+  min-height: 2.75rem;
+}
+
+.p-button.p-button-icon-only {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+}
+
+.p-button.p-button-sm.p-button-icon-only {
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+}
+
+.p-inputtext,
+.p-select {
+  min-height: 2.75rem;
+}
+
+.p-toast {
+  max-width: calc(100vw - 2rem);
+}
+
+// El diálogo de confirmación queda montado aunque esté cerrado; vacío no debe existir para el lector de pantalla.
+p-confirmdialog p-dialog:empty {
+  display: none;
+}
+
+.p-drawer-right.p-drawer {
+  width: min(100vw, 26.5rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// El panel del carrito se monta fuera del componente, por eso su ajuste vive aquí.
+.cart-drawer {
+  .p-drawer-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--app-space-3);
+  }
+
+  .p-drawer-footer {
+    padding-top: var(--app-space-4);
+    border-top: 1px solid var(--app-border);
+    box-shadow: 0 -8px 24px rgb(15 23 42 / 0.06);
+  }
+}
