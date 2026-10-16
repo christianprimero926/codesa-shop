@@ -1,0 +1,15 @@
+# Dependencias y compilados
+node_modules/
+dist/
+target/
+.angular/
+
+# IDE y sistema
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Variables locales
+.env
