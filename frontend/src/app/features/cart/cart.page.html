@@ -1,0 +1,67 @@
+<div class="app-container app-page cart-page">
+  <header class="cart-page__header">
+    <div>
+      <h1>Tu carrito</h1>
+      @if (!cart.isEmpty()) {
+        <p class="app-muted">
+          {{ cart.itemCount() }}
+          {{ cart.itemCount() === 1 ? 'artículo listo' : 'artículos listos' }} para pedir
+        </p>
+      }
+    </div>
+    @if (!cart.isEmpty()) {
+      <p-button
+        label="Vaciar carrito"
+        icon="pi pi-trash"
+        [text]="true"
+        severity="secondary"
+        (onClick)="actions.confirmClear()"
+      />
+    }
+  </header>
+
+  @if (cart.isEmpty()) {
+    <app-cart-empty />
+  } @else {
+    <div class="cart-page__layout">
+      <section class="cart-page__lines app-card" aria-labelledby="cart-lines-title">
+        <h2 id="cart-lines-title" class="visually-hidden">Productos</h2>
+        <ul class="cart-page__list">
+          @for (line of cart.lineViews(); track line.productId) {
+            <li>
+              <app-cart-line [line]="line" />
+            </li>
+          }
+        </ul>
+        <a routerLink="/" class="cart-page__continue">
+          <i class="pi pi-arrow-left" aria-hidden="true"></i> Seguir comprando
+        </a>
+      </section>
+
+      <aside class="cart-page__summary app-card">
+        <app-cart-summary idPrefix="page">
+          <a pButton routerLink="/checkout" size="large" class="cart-page__checkout"
+            ><i class="pi pi-lock" pButtonIcon aria-hidden="true"></i
+            ><span pButtonLabel>Continuar al checkout</span></a
+          >
+          <p class="cart-page__secure">
+            <i class="pi pi-shield" aria-hidden="true"></i> Pago con tarjeta o contra entrega
+          </p>
+        </app-cart-summary>
+      </aside>
+    </div>
+
+    <app-cart-suggestions />
+
+    <div class="cart-page__mobile-bar" aria-hidden="true">
+      <div>
+        <span class="cart-page__mobile-label">Total</span>
+        <strong class="app-money">{{ cart.summary().total | cop }}</strong>
+      </div>
+      <a pButton routerLink="/checkout" tabindex="-1"
+        ><i class="pi pi-lock" pButtonIcon aria-hidden="true"></i
+        ><span pButtonLabel>Continuar</span></a
+      >
+    </div>
+  }
+</div>

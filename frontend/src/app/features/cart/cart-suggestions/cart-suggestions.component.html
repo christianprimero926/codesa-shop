@@ -1,0 +1,27 @@
+@if (suggestions().length > 0) {
+  <section class="suggestions" aria-labelledby="suggestions-title">
+    <h2 id="suggestions-title">Complementa tu compra</h2>
+    <p class="app-muted">Más de {{ category() }} que otros clientes valoran bien.</p>
+    <ul class="suggestions__list">
+      @for (product of suggestions(); track product.id) {
+        <li class="suggestion app-card">
+          <img
+            [src]="product.image"
+            alt=""
+            width="96"
+            height="72"
+            loading="lazy"
+            class="suggestion__image"
+          />
+          <div class="suggestion__info">
+            <a [routerLink]="['/producto', product.id]" class="suggestion__name">{{
+              product.name
+            }}</a>
+            <span class="suggestion__price app-money">{{ product.price | cop }}</span>
+          </div>
+          <app-add-to-cart-button [product]="product" size="small" [compactLabel]="true" />
+        </li>
+      }
+    </ul>
+  </section>
+}

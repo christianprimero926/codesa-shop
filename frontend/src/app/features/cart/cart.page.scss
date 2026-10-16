@@ -1,0 +1,126 @@
+.cart-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-5);
+  padding-bottom: calc(var(--app-space-7) + 4.5rem);
+
+  @media (min-width: 900px) {
+    padding-bottom: var(--app-space-7);
+  }
+}
+
+.cart-page__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--app-space-3);
+
+  p {
+    margin-top: var(--app-space-1);
+  }
+}
+
+.cart-page__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--app-space-4);
+
+  @media (min-width: 900px) {
+    grid-template-columns: minmax(0, 1fr) 23rem;
+    gap: var(--app-space-5);
+    align-items: start;
+  }
+}
+
+.cart-page__lines {
+  container: cart-lines / inline-size;
+  padding: var(--app-space-1) var(--app-space-4) var(--app-space-4);
+
+  @media (min-width: 720px) {
+    padding-inline: var(--app-space-5);
+  }
+}
+
+.cart-page__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li + li {
+    border-top: 1px solid var(--app-border);
+  }
+}
+
+.cart-page__continue {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--app-space-2);
+  min-height: 2.75rem;
+  margin-top: var(--app-space-2);
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.cart-page__summary {
+  padding: var(--app-space-5);
+
+  @media (min-width: 900px) {
+    position: sticky;
+    top: calc(var(--app-header-height) + var(--app-space-4));
+  }
+}
+
+.cart-page__checkout {
+  width: 100%;
+  text-decoration: none;
+}
+
+.cart-page__secure {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--app-space-2);
+  font-size: 0.8125rem;
+  color: var(--app-text-soft);
+}
+
+// En el celular el total y la acción principal quedan siempre a mano.
+.cart-page__mobile-bar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-3);
+  padding: var(--app-space-3) var(--app-space-4)
+    calc(var(--app-space-3) + env(safe-area-inset-bottom));
+  background: var(--app-surface);
+  border-top: 1px solid var(--app-border);
+  box-shadow: 0 -8px 24px rgb(15 23 42 / 0.08);
+
+  div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  strong {
+    font-size: 1.25rem;
+  }
+
+  @media (min-width: 900px) {
+    display: none;
+  }
+}
+
+.cart-page__mobile-label {
+  font-size: 0.75rem;
+  color: var(--app-text-muted);
+}
