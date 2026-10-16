@@ -1,0 +1,127 @@
+@let view = state();
+<div class="app-container app-page confirmation">
+  @switch (view.status) {
+    @case ('loading') {
+      <div class="confirmation__card app-card" aria-busy="true" aria-label="Cargando pedido">
+        <p-skeleton shape="circle" size="4rem" />
+        <p-skeleton width="60%" height="2rem" />
+        <p-skeleton width="40%" height="1rem" />
+        <p-skeleton width="100%" height="12rem" />
+      </div>
+    }
+
+    @case ('error') {
+      @if (view.error.code === 'RECURSO_NO_ENCONTRADO') {
+        <app-state-block
+          icon="pi-search"
+          title="No encontramos ese pedido"
+          [description]="'Revisa que el número ' + numero() + ' esté completo y bien escrito.'"
+          [focusTitle]="true"
+        >
+          <a pButton routerLink="/"
+            ><i class="pi pi-arrow-left" pButtonIcon aria-hidden="true"></i
+            ><span pButtonLabel>Volver al catálogo</span></a
+          >
+        </app-state-block>
+      } @else {
+        <app-state-block
+          tone="error"
+          icon="pi-wifi"
+          title="No pudimos cargar tu pedido"
+          [description]="view.error.message + ' Tu pedido sigue guardado.'"
+        >
+          <p-button label="Reintentar" icon="pi pi-refresh" (onClick)="retry()" />
+        </app-state-block>
+      }
+    }
+
+    @case ('success') {
+      @let order = view.data;
+      <article class="confirmation__card app-card" aria-labelledby="confirmation-title">
+        <header class="confirmation__hero">
+          <span
+            class="confirmation__check"
+            [class.confirmation__check--animated]="justCreated"
+            aria-hidden="true"
+          >
+            <i class="pi pi-check"></i>
+          </span>
+          <h1 id="confirmation-title" tabindex="-1">
+            ¡Gracias, {{ firstName() }}! Tu pedido está confirmado
+          </h1>
+          <p class="app-muted">
+            Te contactaremos en <strong>{{ order.customer.email }}</strong> si hay novedades con la
+            entrega.
+          </p>
+          <p class="confirmation__number">
+            <span class="app-eyebrow">Número de pedido</span>
+            <strong>{{ order.number }}</strong>
+          </p>
+        </header>
+
+        <dl class="confirmation__facts">
+          <div>
+            <dt>Fecha</dt>
+            <dd>{{ order.createdAt | date: 'dd/MM/yyyy' }}</dd>
+          </div>
+          <div>
+            <dt>Forma de pago</dt>
+            <dd>{{ paymentLabel(order.paymentMethod) }}</dd>
+          </div>
+          <div class="confirmation__facts-wide">
+            <dt>Entrega en</dt>
+            <dd>{{ order.customer.address }}, {{ order.customer.city }}</dd>
+          </div>
+        </dl>
+
+        <section aria-labelledby="confirmation-lines-title">
+          <h2 id="confirmation-lines-title" class="confirmation__subtitle">Productos</h2>
+          <ul class="confirmation__lines">
+            @for (line of order.items; track line.productId) {
+              <li class="confirmation__line">
+                <img [src]="line.image" alt="" width="64" height="48" loading="lazy" />
+                <span class="confirmation__line-name">
+                  {{ line.name }}
+                  <small class="app-muted app-money"
+                    >{{ line.quantity }} × {{ line.unitPrice | cop }}</small
+                  >
+                </span>
+                <span class="app-money">{{ line.lineTotal | cop }}</span>
+              </li>
+            }
+          </ul>
+        </section>
+
+        <dl class="confirmation__totals">
+          <div>
+            <dt>Subtotal</dt>
+            <dd class="app-money">{{ order.subtotal | cop }}</dd>
+          </div>
+          @if (order.discount > 0) {
+            <div class="confirmation__discount">
+              <dt>Descuento {{ order.couponCode }}</dt>
+              <dd class="app-money">− {{ order.discount | cop }}</dd>
+            </div>
+          }
+          <div>
+            <dt>Envío</dt>
+            <dd class="app-money">
+              {{ order.shipping === 0 ? 'Gratis' : (order.shipping | cop) }}
+            </dd>
+          </div>
+          <div class="confirmation__total">
+            <dt>Total</dt>
+            <dd class="app-money">{{ order.total | cop }}</dd>
+          </div>
+        </dl>
+
+        <div class="confirmation__actions">
+          <a pButton routerLink="/" size="large"
+            ><i class="pi pi-shopping-bag" pButtonIcon aria-hidden="true"></i
+            ><span pButtonLabel>Seguir comprando</span></a
+          >
+        </div>
+      </article>
+    }
+  }
+</div>
