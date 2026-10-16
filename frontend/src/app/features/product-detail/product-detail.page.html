@@ -1,0 +1,137 @@
+@let view = state();
+<div class="app-container app-page detail">
+  @switch (view.status) {
+    @case ('loading') {
+      <div class="detail__layout" aria-busy="true" aria-label="Cargando producto">
+        <p-skeleton styleClass="detail__skeleton-image" />
+        <div class="detail__info">
+          <p-skeleton width="30%" height="0.85rem" />
+          <p-skeleton width="85%" height="2rem" />
+          <p-skeleton width="40%" height="1rem" />
+          <p-skeleton width="45%" height="2.25rem" />
+          <p-skeleton width="100%" height="5rem" />
+          <p-skeleton width="100%" height="3rem" borderRadius="10px" />
+        </div>
+      </div>
+    }
+
+    @case ('error') {
+      @if (view.error.code === 'RECURSO_NO_ENCONTRADO') {
+        <app-state-block
+          icon="pi-search"
+          title="No encontramos ese producto"
+          description="Puede que el enlace esté mal escrito o que el producto ya no esté en el catálogo."
+          [focusTitle]="true"
+        >
+          <a pButton routerLink="/"
+            ><i class="pi pi-arrow-left" pButtonIcon aria-hidden="true"></i
+            ><span pButtonLabel>Volver al catálogo</span></a
+          >
+        </app-state-block>
+      } @else {
+        <app-state-block
+          tone="error"
+          icon="pi-wifi"
+          title="No pudimos cargar el producto"
+          [description]="view.error.message"
+        >
+          <p-button label="Reintentar" icon="pi pi-refresh" (onClick)="retry()" />
+          <a pButton routerLink="/" [outlined]="true" severity="secondary"
+            ><span pButtonLabel>Volver al catálogo</span></a
+          >
+        </app-state-block>
+      }
+    }
+
+    @case ('success') {
+      @let item = view.data;
+      <p-breadcrumb [home]="home" [model]="breadcrumb()" styleClass="detail__breadcrumb" />
+
+      <article class="detail__layout">
+        <div class="detail__media app-card">
+          <img
+            [ngSrc]="item.image"
+            [alt]="item.name"
+            width="600"
+            height="450"
+            sizes="(max-width: 900px) 100vw, 640px"
+            priority
+            class="detail__image"
+          />
+        </div>
+
+        <div class="detail__info">
+          <p class="app-eyebrow">{{ item.brand }} · {{ item.category }}</p>
+          <h1>{{ item.name }}</h1>
+
+          <div class="detail__rating">
+            <p-rating [ngModel]="item.rating" [readonly]="true" inert aria-hidden="true" />
+            <span
+              ><span class="visually-hidden">Valoración </span>{{ item.rating | ratingText
+              }}<span class="visually-hidden"> de 5</span></span
+            >
+          </div>
+
+          <p class="detail__price app-money">{{ item.price | cop }}</p>
+          <p class="detail__tax">Precio con IVA incluido</p>
+
+          <p class="detail__description">{{ item.description }}</p>
+
+          <div class="detail__stock">
+            <app-stock-tag [stock]="item.stock" />
+            @if (item.stock > 0) {
+              <span class="app-muted">
+                {{ item.stock }}
+                {{ item.stock === 1 ? 'unidad disponible' : 'unidades disponibles' }}
+              </span>
+            }
+          </div>
+
+          <div class="detail__buy app-card">
+            @if (item.stock === 0) {
+              <p class="detail__notice">
+                <i class="pi pi-info-circle" aria-hidden="true"></i>
+                Este producto está agotado por ahora.
+              </p>
+            } @else if (addable() === 0) {
+              <p class="detail__notice">
+                <i class="pi pi-info-circle" aria-hidden="true"></i>
+                Ya tienes {{ inCart() }} en tu carrito, el máximo disponible para este producto.
+              </p>
+            } @else {
+              <div class="detail__quantity">
+                <label for="detail-quantity" class="detail__label">Cantidad</label>
+                <p-inputnumber
+                  inputId="detail-quantity"
+                  [ngModel]="quantity()"
+                  (ngModelChange)="changeQuantity($event)"
+                  [showButtons]="true"
+                  buttonLayout="horizontal"
+                  [min]="1"
+                  [max]="addable()"
+                  [allowEmpty]="false"
+                  incrementButtonIcon="pi pi-plus"
+                  decrementButtonIcon="pi pi-minus"
+                  styleClass="detail__stepper"
+                  ariaDescribedBy="detail-quantity-hint"
+                />
+                <span id="detail-quantity-hint" class="detail__hint">
+                  Máximo {{ addable() }}
+                  @if (inCart() > 0) {
+                    · ya tienes {{ inCart() }} en tu carrito
+                  }
+                </span>
+              </div>
+            }
+            <app-add-to-cart-button
+              [product]="item"
+              [quantity]="quantity()"
+              size="large"
+              [fluid]="true"
+            />
+          </div>
+        </div>
+      </article>
+    }
+  }
+</div>

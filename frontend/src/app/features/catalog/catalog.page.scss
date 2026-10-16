@@ -1,0 +1,97 @@
+.catalog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-5);
+}
+
+.catalog__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--app-space-2) var(--app-space-4);
+
+  h1 {
+    margin-top: var(--app-space-1);
+    overflow-wrap: anywhere;
+  }
+}
+
+.catalog__count {
+  min-height: 1.5em;
+  color: var(--app-text-muted);
+  font-size: 0.9375rem;
+}
+
+.catalog__toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: end;
+  gap: var(--app-space-3);
+  padding: var(--app-space-4);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+
+  @media (min-width: 480px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 768px) {
+    display: flex;
+    flex-wrap: wrap;
+  }
+}
+
+.catalog__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-1);
+  min-width: 0;
+
+  @media (min-width: 768px) {
+    width: 15rem;
+  }
+}
+
+.catalog__label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--app-text-muted);
+}
+
+:host ::ng-deep .catalog__select {
+  width: 100%;
+}
+
+.catalog__toolbar > p-button {
+  grid-column: 1 / -1;
+  justify-self: start;
+
+  @media (min-width: 768px) {
+    margin-left: auto;
+  }
+}
+
+.catalog__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15.5rem), 1fr));
+  gap: var(--app-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (max-width: 520px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--app-space-3);
+  }
+}
+
+// Reserva el alto del paginador para que el pie no salte al llegar los datos.
+.catalog__pager {
+  min-height: 3.5rem;
+}
+
+:host ::ng-deep .catalog__paginator {
+  background: transparent;
+}

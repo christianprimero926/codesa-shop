@@ -1,0 +1,39 @@
+@let item = product();
+<article class="card" [class.card--sold-out]="item.stock === 0">
+  <div class="card__media">
+    <img
+      [ngSrc]="item.image"
+      alt=""
+      width="600"
+      height="450"
+      sizes="(max-width: 520px) 50vw, 300px"
+      [priority]="priority()"
+      class="card__image"
+    />
+  </div>
+
+  <div class="card__body">
+    <div class="card__meta">
+      <span class="app-eyebrow">{{ item.category }}</span>
+      <app-stock-tag [stock]="item.stock" />
+    </div>
+
+    <h3 class="card__name">
+      <a [routerLink]="['/producto', item.id]" class="card__link">{{ item.name }}</a>
+    </h3>
+    <p class="card__brand">{{ item.brand }}</p>
+
+    <div class="card__rating">
+      <p-rating [ngModel]="item.rating" [readonly]="true" inert aria-hidden="true" />
+      <span class="card__rating-value">
+        <span class="visually-hidden">Valoración </span>{{ item.rating | ratingText
+        }}<span class="visually-hidden"> de 5</span>
+      </span>
+    </div>
+
+    <div class="card__footer">
+      <p class="card__price app-money">{{ item.price | cop }}</p>
+      <app-add-to-cart-button [product]="item" size="small" [compactLabel]="true" />
+    </div>
+  </div>
+</article>

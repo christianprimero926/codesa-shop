@@ -1,0 +1,131 @@
+@let current = filters();
+@let view = state();
+<div class="app-container app-page catalog">
+  <header class="catalog__header">
+    <div>
+      <p class="app-eyebrow">Tienda de tecnología</p>
+      <h1>{{ heading() }}</h1>
+    </div>
+    <p class="catalog__count" aria-live="polite">
+      @switch (view.status) {
+        @case ('success') {
+          {{ view.data.total }} {{ view.data.total === 1 ? 'producto' : 'productos' }}
+        }
+        @case ('loading') {
+          Buscando productos…
+        }
+      }
+    </p>
+  </header>
+
+  <div class="catalog__toolbar" role="group" aria-label="Filtros del catálogo">
+    <div class="catalog__field">
+      <label for="catalog-category" class="catalog__label">Categoría</label>
+      <p-select
+        inputId="catalog-category"
+        [options]="categoryOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="current.category"
+        (ngModelChange)="onCategoryChange($event)"
+        styleClass="catalog__select"
+      />
+    </div>
+    <div class="catalog__field">
+      <label for="catalog-sort" class="catalog__label">Ordenar por</label>
+      <p-select
+        inputId="catalog-sort"
+        [options]="sortOptions"
+        optionLabel="label"
+        dataKey="value"
+        [ngModel]="current.sort"
+        (ngModelChange)="onSortChange($event)"
+        styleClass="catalog__select"
+      />
+    </div>
+    @if (hasFilters()) {
+      <p-button
+        label="Limpiar filtros"
+        icon="pi pi-filter-slash"
+        [text]="true"
+        severity="secondary"
+        styleClass="catalog__clear"
+        (onClick)="clearFilters()"
+      />
+    }
+  </div>
+
+  @switch (view.status) {
+    @case ('loading') {
+      <ul class="catalog__grid" aria-busy="true" aria-label="Cargando productos">
+        @for (item of skeletons; track item) {
+          <li><app-product-card-skeleton /></li>
+        }
+      </ul>
+      <div class="catalog__pager"></div>
+    }
+    @case ('error') {
+      <app-state-block
+        tone="error"
+        icon="pi-wifi"
+        title="No pudimos cargar el catálogo"
+        [description]="view.error.message"
+      >
+        <p-button label="Reintentar" icon="pi pi-refresh" (onClick)="retry()" />
+      </app-state-block>
+    }
+    @case ('success') {
+      @if (view.data.items.length === 0) {
+        @if (view.data.total > 0) {
+          <app-state-block
+            icon="pi-book"
+            title="Esta página ya no tiene productos"
+            description="La búsqueda tiene menos páginas de las que pediste."
+          >
+            <p-button label="Ir a la primera página" (onClick)="goToFirstPage()" />
+          </app-state-block>
+        } @else {
+          <app-state-block
+            icon="pi-search"
+            title="No encontramos productos"
+            [description]="
+              current.q
+                ? 'No hay resultados para “' +
+                  current.q +
+                  '”. Prueba con otra palabra o revisa la ortografía.'
+                : 'No hay productos con estos filtros.'
+            "
+          >
+            <p-button
+              label="Limpiar filtros"
+              icon="pi pi-filter-slash"
+              (onClick)="clearFilters()"
+            />
+          </app-state-block>
+        }
+      } @else {
+        <h2 class="visually-hidden">Productos</h2>
+        <ul class="catalog__grid" aria-label="Productos">
+          @for (product of view.data.items; track product.id; let index = $index) {
+            <li>
+              <app-product-card [product]="product" [priority]="index < priorityCards" />
+            </li>
+          }
+        </ul>
+
+        <div class="catalog__pager">
+          @if (view.data.totalPages > 1) {
+            <p-paginator
+            [first]="view.data.page * view.data.size"
+            [rows]="view.data.size"
+            [totalRecords]="view.data.total"
+            [pageLinkSize]="5"
+            (onPageChange)="onPageChange($event)"
+            styleClass="catalog__paginator"
+          />
+          }
+        </div>
+      }
+    }
+  }
+</div>
