@@ -116,13 +116,13 @@
         <div class="catalog__pager">
           @if (view.data.totalPages > 1) {
             <p-paginator
-            [first]="view.data.page * view.data.size"
-            [rows]="view.data.size"
-            [totalRecords]="view.data.total"
-            [pageLinkSize]="5"
-            (onPageChange)="onPageChange($event)"
-            styleClass="catalog__paginator"
-          />
+              [first]="view.data.page * view.data.size"
+              [rows]="view.data.size"
+              [totalRecords]="view.data.total"
+              [pageLinkSize]="5"
+              (onPageChange)="onPageChange($event)"
+              styleClass="catalog__paginator"
+            />
           }
         </div>
       }
