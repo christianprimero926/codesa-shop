@@ -1,0 +1,44 @@
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+<app-header />
+
+<main id="contenido" #main tabindex="-1" class="app-main">
+  <router-outlet />
+</main>
+
+<app-footer />
+
+@defer (when drawer.visible()) {
+  <app-cart-drawer />
+}
+
+<p-toast
+  [key]="toastKey"
+  position="bottom-left"
+  [breakpoints]="{ '640px': { width: 'calc(100% - 2rem)', right: '1rem', left: '1rem' } }"
+>
+  <ng-template let-message #message>
+    @let data = toastData(message.data);
+    <div class="app-toast">
+      <div class="app-toast__text">
+        <strong>{{ message.summary }}</strong>
+        <span>{{ message.detail }}</span>
+      </div>
+      @if (data.undo) {
+        <p-button
+          label="Deshacer"
+          icon="pi pi-undo"
+          size="small"
+          [text]="true"
+          (onClick)="undo(data)"
+        />
+      } @else if (data.viewCart) {
+        <p-button label="Ver carrito" size="small" [text]="true" (onClick)="viewCart()" />
+      }
+    </div>
+  </ng-template>
+</p-toast>
+
+@defer (on idle) {
+  <p-confirmdialog [style]="{ width: 'min(28rem, calc(100vw - 2rem))' }" />
+}

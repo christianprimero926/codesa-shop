@@ -1,0 +1,162 @@
+:host {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: block;
+}
+
+.header {
+  background: rgb(255 255 255 / 0.92);
+  backdrop-filter: saturate(1.4) blur(10px);
+  border-bottom: 1px solid var(--app-border);
+}
+
+.header__bar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    'logo nav cart'
+    'search search search';
+  align-items: center;
+  gap: var(--app-space-2) var(--app-space-3);
+  padding-block: var(--app-space-2) var(--app-space-3);
+
+  @media (min-width: 900px) {
+    grid-template-columns: auto auto 1fr auto;
+    grid-template-areas: 'logo nav search cart';
+    gap: var(--app-space-5);
+    min-height: var(--app-header-height);
+    padding-block: var(--app-space-2);
+  }
+}
+
+.header__logo {
+  grid-area: logo;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--app-space-2);
+  color: var(--app-text);
+  text-decoration: none;
+  border-radius: var(--app-radius-sm);
+}
+
+.header__logo-mark {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 10px;
+  background: var(--app-brand);
+  color: #fff;
+}
+
+.header__logo-text {
+  font-size: 1.125rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+
+  strong {
+    font-weight: 750;
+    color: var(--app-brand);
+  }
+}
+
+.header__nav {
+  grid-area: nav;
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--app-space-1);
+
+  @media (min-width: 900px) {
+    justify-content: flex-start;
+  }
+}
+
+.header__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-inline: var(--app-space-3);
+  border-radius: var(--app-radius-sm);
+  color: var(--app-text-muted);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+
+  &:hover {
+    background: var(--p-surface-100);
+    color: var(--app-text);
+  }
+
+  &--active {
+    color: var(--app-brand);
+    font-weight: 600;
+  }
+
+  @media (max-width: 479px) {
+    padding-inline: var(--app-space-2);
+    font-size: 0.875rem;
+  }
+
+  // En pantallas angostas el carrito se abre desde el ícono.
+  &--secondary {
+    @media (max-width: 419px) {
+      display: none;
+    }
+  }
+}
+
+.header__search {
+  grid-area: search;
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-2);
+  min-width: 0;
+}
+
+.header__search-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.header__search-input {
+  width: 100%;
+
+  // El botón propio de limpiar reemplaza al nativo del input type=search.
+  &::-webkit-search-cancel-button {
+    display: none;
+  }
+}
+
+.header__cart {
+  grid-area: cart;
+  display: flex;
+  justify-content: flex-end;
+}
+
+:host ::ng-deep .header__cart-button .pi {
+  font-size: 1.25rem;
+}
+
+.header__cart--bump {
+  animation: cart-bump 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes cart-bump {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.22) rotate(-6deg);
+  }
+  65% {
+    transform: scale(0.94) rotate(3deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

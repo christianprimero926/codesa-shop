@@ -1,0 +1,49 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-main {
+  flex: 1;
+  // Mientras carga la ruta, el pie de página no debe asomarse y luego saltar.
+  min-height: 100vh;
+  outline: none;
+}
+
+.skip-link {
+  position: fixed;
+  top: var(--app-space-2);
+  left: var(--app-space-2);
+  z-index: 1000;
+  padding: var(--app-space-2) var(--app-space-4);
+  border-radius: var(--app-radius-sm);
+  background: var(--app-brand);
+  color: #fff;
+  font-weight: 600;
+  transform: translateY(-200%);
+  transition: transform 0.15s;
+
+  &:focus {
+    transform: translateY(0);
+  }
+}
+
+.app-toast {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--app-space-3);
+}
+
+.app-toast__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.875rem;
+
+  strong {
+    font-size: 0.9375rem;
+  }
+}

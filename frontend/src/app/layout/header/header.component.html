@@ -1,0 +1,100 @@
+<header class="header">
+  <div class="app-container header__bar">
+    <a routerLink="/" class="header__logo" aria-label="Codesa Shop, ir al catálogo">
+      <span class="header__logo-mark" aria-hidden="true"><i class="pi pi-shopping-bag"></i></span>
+      <span class="header__logo-text">Codesa<strong>Shop</strong></span>
+    </a>
+
+    <nav class="header__nav" aria-label="Principal">
+      <a
+        routerLink="/"
+        routerLinkActive="header__link--active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        ariaCurrentWhenActive="page"
+        class="header__link"
+        >Catálogo</a
+      >
+      <a
+        routerLink="/carrito"
+        routerLinkActive="header__link--active"
+        ariaCurrentWhenActive="page"
+        class="header__link header__link--secondary"
+        >Mi carrito</a
+      >
+    </nav>
+
+    <form class="header__search" role="search" (submit)="search($event)">
+      <label for="header-search" class="visually-hidden">Buscar por nombre o marca</label>
+      <p-iconfield class="header__search-field">
+        <p-inputicon styleClass="pi pi-search" />
+        <input
+          pInputText
+          id="header-search"
+          type="search"
+          enterkeyhint="search"
+          autocomplete="off"
+          placeholder="Buscar por nombre o marca"
+          #searchInput
+          [value]="searchTerm()"
+          (input)="searchTerm.set(searchInput.value)"
+          class="header__search-input"
+        />
+      </p-iconfield>
+      @if (searchTerm()) {
+        <p-button
+          type="button"
+          icon="pi pi-times"
+          [text]="true"
+          [rounded]="true"
+          severity="secondary"
+          size="small"
+          ariaLabel="Limpiar búsqueda"
+          styleClass="header__search-clear"
+          (onClick)="clearSearch()"
+        />
+      }
+      <p-button type="submit" label="Buscar" styleClass="header__search-submit" />
+    </form>
+
+    <div #cartButton class="header__cart" [class.header__cart--bump]="bumping()">
+      <p-overlaybadge
+        [value]="cart.itemCount()"
+        [badgeDisabled]="cart.itemCount() === 0"
+        severity="danger"
+        size="small"
+      >
+        <p-button
+          icon="pi pi-shopping-cart"
+          [rounded]="true"
+          [text]="true"
+          severity="secondary"
+          styleClass="header__cart-button"
+          [ariaLabel]="
+            'Abrir carrito, ' +
+            cart.itemCount() +
+            (cart.itemCount() === 1 ? ' artículo' : ' artículos')
+          "
+          (onClick)="openCart()"
+        />
+      </p-overlaybadge>
+    </div>
+  </div>
+</header>
+
+@defer (on idle) {
+  <p-popover
+    #miniCart
+    [focusOnShow]="false"
+    ariaLabel="Resumen rápido del carrito"
+    styleClass="header__mini-cart"
+  >
+    <ng-template #content>
+      <app-mini-cart
+        (mouseenter)="keepMiniCartOpen()"
+        (focusin)="keepMiniCartOpen()"
+        (navigate)="miniCart.hide()"
+        (openDrawer)="openCart()"
+      />
+    </ng-template>
+  </p-popover>
+}
