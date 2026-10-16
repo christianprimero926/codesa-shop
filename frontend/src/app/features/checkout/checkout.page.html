@@ -1,0 +1,306 @@
+@let value = form.getRawValue();
+<div class="app-container app-page checkout">
+  <header class="checkout__header">
+    <a routerLink="/carrito" class="checkout__back">
+      <i class="pi pi-arrow-left" aria-hidden="true"></i> Volver al carrito
+    </a>
+    <h1>Finalizar compra</h1>
+  </header>
+
+  <div class="checkout__layout">
+    <section class="checkout__form app-card" aria-label="Datos del pedido">
+      @if (draftRestored()) {
+        <p-message severity="info" icon="pi pi-history" styleClass="checkout__draft">
+          <div class="checkout__draft-content">
+            <span>Recuperamos los datos que habías escrito.</span>
+            <p-button
+              label="Empezar de cero"
+              [text]="true"
+              size="small"
+              severity="secondary"
+              (onClick)="discardDraft()"
+            />
+          </div>
+        </p-message>
+      }
+
+      @if (notice(); as current) {
+        <div id="checkout-notice" tabindex="-1" class="checkout__notice">
+          <p-message [severity]="current.severity" icon="pi pi-exclamation-circle">
+            <div class="checkout__notice-content">
+              <strong>{{ current.title }}</strong>
+              <span>{{ current.detail }}</span>
+              @if (current.retryable) {
+                <p-button
+                  label="Reintentar"
+                  icon="pi pi-refresh"
+                  size="small"
+                  [loading]="submitting()"
+                  (onClick)="confirm()"
+                />
+              }
+            </div>
+          </p-message>
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="confirm()" novalidate>
+        <p-stepper
+          [value]="step()"
+          (valueChange)="changeStep($event === 2 ? 2 : 1)"
+          [linear]="true"
+        >
+          <p-step-list>
+            <p-step [value]="1">Datos de entrega</p-step>
+            <p-step [value]="2">Pago</p-step>
+          </p-step-list>
+
+          <p-step-panels>
+            <p-step-panel [value]="1">
+              <ng-template #content>
+                <div class="checkout__step">
+                  <h2 id="checkout-step-1-title" tabindex="-1">¿A dónde enviamos tu pedido?</h2>
+                  <p class="app-muted">Todos los campos son obligatorios.</p>
+
+                  <div class="checkout__fields">
+                    <div class="field field--wide">
+                      <label for="checkout-fullName">Nombre completo</label>
+                      <input
+                        pInputText
+                        id="checkout-fullName"
+                        formControlName="fullName"
+                        autocomplete="name"
+                        [invalid]="!!fieldError('fullName')"
+                        [attr.aria-invalid]="!!fieldError('fullName')"
+                        [attr.aria-describedby]="
+                          fieldError('fullName') ? 'checkout-fullName-error' : null
+                        "
+                      />
+                      @if (fieldError('fullName'); as error) {
+                        <small id="checkout-fullName-error" class="field__error">
+                          <i class="pi pi-times-circle" aria-hidden="true"></i> {{ error }}
+                        </small>
+                      }
+                    </div>
+
+                    <div class="field">
+                      <label for="checkout-email">Correo electrónico</label>
+                      <input
+                        pInputText
+                        id="checkout-email"
+                        type="email"
+                        formControlName="email"
+                        autocomplete="email"
+                        inputmode="email"
+                        [invalid]="!!fieldError('email')"
+                        [attr.aria-invalid]="!!fieldError('email')"
+                        [attr.aria-describedby]="
+                          fieldError('email') ? 'checkout-email-error' : null
+                        "
+                      />
+                      @if (fieldError('email'); as error) {
+                        <small id="checkout-email-error" class="field__error">
+                          <i class="pi pi-times-circle" aria-hidden="true"></i> {{ error }}
+                        </small>
+                      }
+                    </div>
+
+                    <div class="field">
+                      <label for="checkout-phone">Teléfono</label>
+                      <input
+                        pInputText
+                        id="checkout-phone"
+                        type="tel"
+                        formControlName="phone"
+                        autocomplete="tel-national"
+                        inputmode="numeric"
+                        maxlength="10"
+                        [invalid]="!!fieldError('phone')"
+                        [attr.aria-invalid]="!!fieldError('phone')"
+                        [attr.aria-describedby]="
+                          fieldError('phone') ? 'checkout-phone-error' : 'checkout-phone-hint'
+                        "
+                      />
+                      @if (fieldError('phone'); as error) {
+                        <small id="checkout-phone-error" class="field__error">
+                          <i class="pi pi-times-circle" aria-hidden="true"></i> {{ error }}
+                        </small>
+                      } @else {
+                        <small id="checkout-phone-hint" class="field__hint"
+                          >Entre 7 y 10 dígitos.</small
+                        >
+                      }
+                    </div>
+
+                    <div class="field field--wide">
+                      <label for="checkout-address">Dirección</label>
+                      <input
+                        pInputText
+                        id="checkout-address"
+                        formControlName="address"
+                        autocomplete="street-address"
+                        placeholder="Calle, número, apartamento"
+                        [invalid]="!!fieldError('address')"
+                        [attr.aria-invalid]="!!fieldError('address')"
+                        [attr.aria-describedby]="
+                          fieldError('address') ? 'checkout-address-error' : null
+                        "
+                      />
+                      @if (fieldError('address'); as error) {
+                        <small id="checkout-address-error" class="field__error">
+                          <i class="pi pi-times-circle" aria-hidden="true"></i> {{ error }}
+                        </small>
+                      }
+                    </div>
+
+                    <div class="field">
+                      <label for="checkout-city">Ciudad</label>
+                      <input
+                        pInputText
+                        id="checkout-city"
+                        formControlName="city"
+                        autocomplete="address-level2"
+                        [invalid]="!!fieldError('city')"
+                        [attr.aria-invalid]="!!fieldError('city')"
+                        [attr.aria-describedby]="fieldError('city') ? 'checkout-city-error' : null"
+                      />
+                      @if (fieldError('city'); as error) {
+                        <small id="checkout-city-error" class="field__error">
+                          <i class="pi pi-times-circle" aria-hidden="true"></i> {{ error }}
+                        </small>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="checkout__actions">
+                    <p-button
+                      type="button"
+                      label="Continuar al pago"
+                      icon="pi pi-arrow-right"
+                      iconPos="right"
+                      size="large"
+                      (onClick)="goToPayment()"
+                    />
+                  </div>
+                </div>
+              </ng-template>
+            </p-step-panel>
+
+            <p-step-panel [value]="2">
+              <ng-template #content>
+                <div class="checkout__step">
+                  <h2 id="checkout-step-2-title" tabindex="-1">¿Cómo quieres pagar?</h2>
+
+                  <fieldset
+                    class="payment"
+                    [attr.aria-describedby]="
+                      form.controls.paymentMethod.touched && form.controls.paymentMethod.invalid
+                        ? 'checkout-payment-error'
+                        : null
+                    "
+                  >
+                    <legend class="visually-hidden">Forma de pago</legend>
+                    @for (option of paymentOptions; track option.value) {
+                      <label
+                        class="payment__option"
+                        [class.payment__option--selected]="value.paymentMethod === option.value"
+                        [for]="'payment-' + option.value"
+                      >
+                        <p-radiobutton
+                          [inputId]="'payment-' + option.value"
+                          [value]="option.value"
+                          formControlName="paymentMethod"
+                          name="paymentMethod"
+                        />
+                        <i [class]="option.icon + ' payment__icon'" aria-hidden="true"></i>
+                        <span class="payment__text">
+                          <strong>{{ option.label }}</strong>
+                          <span>{{ option.description }}</span>
+                        </span>
+                      </label>
+                    }
+                  </fieldset>
+                  @if (form.controls.paymentMethod.touched && form.controls.paymentMethod.invalid) {
+                    <small id="checkout-payment-error" class="field__error">
+                      <i class="pi pi-times-circle" aria-hidden="true"></i> Elige una forma de pago.
+                    </small>
+                  }
+
+                  <div class="review">
+                    <div class="review__header">
+                      <h3>Entrega</h3>
+                      <p-button
+                        type="button"
+                        label="Editar"
+                        icon="pi pi-pencil"
+                        [text]="true"
+                        size="small"
+                        (onClick)="changeStep(1)"
+                      />
+                    </div>
+                    <p>
+                      <strong>{{ value.fullName }}</strong
+                      ><br />
+                      {{ value.address }}, {{ value.city }}<br />
+                      {{ value.email }} · {{ value.phone }}
+                    </p>
+                  </div>
+
+                  <div class="checkout__actions checkout__actions--split">
+                    <p-button
+                      type="button"
+                      label="Atrás"
+                      icon="pi pi-arrow-left"
+                      [outlined]="true"
+                      severity="secondary"
+                      [disabled]="submitting()"
+                      (onClick)="changeStep(1)"
+                    />
+                    <p-button
+                      type="submit"
+                      [label]="
+                        submitting()
+                          ? 'Confirmando…'
+                          : 'Confirmar pedido · ' + (cart.summary().total | cop)
+                      "
+                      icon="pi pi-lock"
+                      size="large"
+                      [loading]="submitting()"
+                      [disabled]="submitting()"
+                      styleClass="checkout__submit"
+                    />
+                  </div>
+                </div>
+              </ng-template>
+            </p-step-panel>
+          </p-step-panels>
+        </p-stepper>
+      </form>
+    </section>
+
+    <aside class="checkout__summary app-card" aria-labelledby="checkout-summary-title">
+      <h2 id="checkout-summary-title" class="checkout__summary-title">Tu pedido</h2>
+      <ul class="order-lines">
+        @for (line of cart.lineViews(); track line.productId) {
+          <li class="order-line" [class.order-line--alert]="line.alert">
+            <span class="order-line__media">
+              <img [src]="line.image" alt="" width="56" height="42" loading="lazy" />
+              <span class="order-line__qty" aria-hidden="true">{{ line.quantity }}</span>
+            </span>
+            <span class="order-line__name">
+              {{ line.name }}
+              <span class="visually-hidden">, {{ line.quantity }} unidades</span>
+              @if (line.alert) {
+                <small class="order-line__alert">
+                  <i class="pi pi-exclamation-triangle" aria-hidden="true"></i> {{ line.alert }}
+                </small>
+              }
+            </span>
+            <span class="order-line__total app-money">{{ line.lineTotal | cop }}</span>
+          </li>
+        }
+      </ul>
+      <app-cart-summary idPrefix="checkout" [showTitle]="false" [showShippingProgress]="false" />
+    </aside>
+  </div>
+</div>
