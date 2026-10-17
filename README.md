@@ -267,5 +267,5 @@ AWS_REGION=us-east-1 ./infra/aws/destroy.sh   # elimina todo
 
 | Parte | Horas |
 | --- | --- |
-| Frontend | _por completar_ |
-| Backend | _por completar_ |
+| Frontend | 8 |
+| Backend | 1,5 |
